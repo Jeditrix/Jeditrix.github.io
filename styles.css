@@ -1,0 +1,23 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+header {
+    background-color: transparent;
+    padding: 10px;
+    text-align: center;
+}
+
+main {
+    margin: 15px;
+}
+
+footer {
+    background-color: transparent;
+    text-align: center;
+    padding: 10px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    color: #FFFF00;
+}
