@@ -1,152 +1,78 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-    <link rel="icon" href="assets/coff.gif" type="image/gif" >
+    <link rel="icon" href="assets/coff.gif" type="image/gif">
     <title>Alex Hellings Developer</title>
     <link rel="stylesheet" type="text/css" href="styles.css">
     <style>
         @media (min-width: 1200px) {
-    body {
-        background-size: 100%; /* This will make sure the width is 100% and the height is auto preserving the aspect ratio. */
-        background-position: top center; /* This will align the top of the image with the top of the container. */
-    }
-}
-        body { 
+            body {
+                background-size: 100%; 
+                background-position: top center;
+            }
+        }
+
+        body {
             background-image: url('assets/11.gif');
             background-repeat: no-repeat;
             background-size: cover;
             background-position: center;
             margin: 0;
-            position: relative; /* Set a reference for absolute positioning */
+            position: relative;
         }
-        .gnome {
+
+        .gnome, .fisher, .email, .resume, .pointing, .map, .welcome, .count, .frog {
             position: absolute;
-            top: 70%;
-            left: 50%;
-            transform: translate(-50%, -50%); /* Centers the gif */
+            transform: translate(-50%, -50%);
         }
-        
-        .fisher {
-            position: absolute;
-            top: 95%;
-            left: 23%;
-            transform: translate(-50%, -50%); /* Centers the gif */
-        }
-        .email {
-            position: absolute;
-            top: 75%;
-            left: 10%;
-            transform: translate(-50%, -50%); /* Centers the gif */
-        }
-        
-        .resume {
-            position: absolute;
-            top: 65%;
-            left: 90%;
-            transform: translate(-50%, -50%); /* Centers the gif */
-        }
-        .pointing {
-            position: absolute;
-            top: 250%;
-            left: 76%;
-            transform: translate(-50%, -50%); /* Centers the gif */
-        }
-        .map {
-            position: absolute;
-            top: 250%;
-            left: 87%;
-            transform: translate(-50%, -50%); /* Centers the gif */
-        }
-        .map {
-            width: 225px; /* 2 times the original 50px */
-            position: absolute;
-            top: 250%;
-            left: 87%;
-            transform: translate(-50%, -50%); /* Centers the gif */
-        }
-        .welcome {
-            
-            position: absolute;
-            top: 250%;
-            left: 10%;
-            transform: translate(-50%, -50%); /* Centers the gif */
-        }
-        .count {
-            
-            position: absolute;
-            top: 270%;
-            left: 10%;
-            transform: translate(-50%, -50%); /* Centers the gif */
-        }
-        
-        
-        
-        .frog {
-            position: absolute;
-            top: 150%;
-            left: 40%;
-            transform: translate(-50%, -50%); /* Centers the gif */
-        }
-        
-        .invisible-text {
-            visibility: hidden;
-        }
+
+        .gnome { top: 70%; left: 50%; }
+        .fisher { top: 95%; left: 23%; }
+        .email { top: 75%; left: 10%; }
+        .resume { top: 65%; left: 90%; }
+        .pointing { top: 250%; left: 76%; }
+        .map { top: 250%; left: 87%; width: 225px; }
+        .welcome { top: 250%; left: 10%; }
+        .count { top: 270%; left: 10%; }
+        .frog { top: 150%; left: 40%; }
+        .invisible-text { visibility: hidden; }
+
     </style>
 </head>
+
 <body>
-    
-
     <main>
-        <a>
-            <a href="https://jeditrix.github.io/projects"> 
-        <img src="assets/gnome2.gif" alt="Gnome" class="gnome" />
+        <a href="https://jeditrix.github.io/projects">
+            <img src="assets/gnome2.gif" alt="Gnome" class="gnome" />
         </a>
-        
-        
-        <a href="https://jeditrix.github.io/resume"> 
+        <a href="https://jeditrix.github.io/resume">
             <img src="assets/duck1.gif" alt="Resume" class="resume" />
-            </a>
-        <img src="assets/fisher.gif" alt="fisher" class="fisher" />
-        <a>
-            <a href =mailto:alexhellings9@gmail.com>
-        <img src="assets/emaildog.gif" alt="email" class="email" />
         </a>
-        <a>
-            
+        <img src="assets/fisher.gif" alt="fisher" class="fisher" />
+        <a href="mailto:alexhellings9@gmail.com">
+            <img src="assets/emaildog.gif" alt="email" class="email" />
+        </a>
         <img src="assets/lovee.gif" alt="counter" class="count" />
-
         <img src="assets/pointing.gif" alt="pointing" class="pointing" />
-
-        <img src="assets/well.gif" alt="pointing" class="welcome" />
-        
-        <a href="https://jeditrix.github.io/map"> 
-            <img src="assets/map.gif" alt="proj" class="map" />
-            </a>
-
-        <a href="https://jeditrix.github.io/blog"> 
+        <img src="assets/well.gif" alt="welcome" class="welcome" />
+        <a href="https://jeditrix.github.io/map">
+            <img src="assets/map.gif" alt="map" class="map" />
+        </a>
+        <a href="https://jeditrix.github.io/blog">
             <img src="assets/frog.gif" alt="frog" class="frog" />
-            </a> 
-        
-              
-
-
-
+        </a>
         <h2 class="invisible-text">About Me</h2>
         <p class="invisible-text">Hello! I am a Software developer. I love coding and creating new things.</p>
-
         <h2 class="invisible-text">Projects</h2>
         <p class="invisible-text">Bibdle app!</p>
-      
-
         <h2 class="invisible-text">Contact me</h2>
-        <p class="invisible-text">alexhellings9@gmail.com</p>     
+        <p class="invisible-text">alexhellings9@gmail.com</p>
     </main>
-
     <footer>
         <p>Copyright &copy; 2023 Alex Hellings</p>
     </footer>
-
     <script src="script.js"></script>
 </body>
-</html>
 
+</html>
