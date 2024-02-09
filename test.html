@@ -21,8 +21,201 @@
             let pyodide = await loadPyodideAndPackages();
             // Run Python code
             pyodide.runPython(`
-                print('Hello, Pyodide!')
-                # Your Python code here
+                import pygame
+                import random
+                import numpy as np
+                import sys
+                
+                pygame.init()
+                fps_clock = pygame.time.Clock()
+                
+                width, height = 400, 400
+                window = pygame.display.set_mode((width, height))
+                pygame.display.set_caption('Enhanced Snake AI with Domain Knowledge')
+                
+                BLACK = (0, 0, 0)
+                RED = (255, 0, 0)
+                GREEN = (0, 255, 0)
+                
+                snake_pos = [100, 50]
+                snake_body = [[100, 50], [90, 50], [80, 50]]
+                food_pos = [random.randrange(1, (width // 10)) * 10, random.randrange(1, (height // 10)) * 10]
+                food_spawn = True
+                direction = 'RIGHT'
+                score = 0
+                speed = 1000
+                
+                population_size = 1000
+                generation = 1
+                individuals = [{'weights': np.random.randn(4, 8), 'bias': np.random.randn(8), 'weights_out': np.random.randn(8, 4), 'bias_out': np.random.randn(4)} for _ in range(population_size)]
+                scores = [0 for _ in range(population_size)]
+                current_individual = 0
+                moves_since_last_meal = 0
+                hunger_threshold = 100
+                
+                def calculate_distance(p1, p2):
+                    return np.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
+                
+                def calculate_relative_direction(snake_pos, food_pos):
+                    direction_vector = [0, 0, 0, 0]  # [left, right, up, down]
+                    if food_pos[0] < snake_pos[0]:
+                        direction_vector[0] = 1
+                    elif food_pos[0] > snake_pos[0]:
+                        direction_vector[1] = 1
+                    if food_pos[1] < snake_pos[1]:
+                        direction_vector[2] = 1
+                    elif food_pos[1] > snake_pos[1]:
+                        direction_vector[3] = 1
+                    return direction_vector
+                
+                def relu(x):
+                    return np.maximum(0, x)
+                
+                def softmax(x):
+                    e_x = np.exp(x - np.max(x))
+                    return e_x / e_x.sum(axis=0)
+                
+                def predict_action(snake_pos, food_pos, snake_body, individual):
+                    direction_to_food = calculate_relative_direction(snake_pos, food_pos)
+                    inputs = np.array(direction_to_food)
+                    hidden_layer = relu(np.dot(inputs, individual['weights']) + individual['bias'])
+                    output_layer = softmax(np.dot(hidden_layer, individual['weights_out']) + individual['bias_out'])
+                    return np.argmax(output_layer)
+                def crossover(parents, offspring_size):
+                    offspring = []
+                    gene_length = len(parents[0]['weights'])  # Assuming all genes have the same length for simplicity
+                    for _ in range(offspring_size):
+                        parent1 = random.choice(parents)
+                        parent2 = random.choice(parents)
+                        cut_point = np.random.randint(1, gene_length)  # Avoid cutting at 0 or the end
+                        
+                        # Creating a child with parts from both parents
+                        child = {
+                            'weights': np.vstack((parent1['weights'][:cut_point, :], parent2['weights'][cut_point:, :])),
+                            'bias': np.concatenate((parent1['bias'][:cut_point], parent2['bias'][cut_point:])),
+                            'weights_out': np.vstack((parent1['weights_out'][:cut_point, :], parent2['weights_out'][cut_point:, :])),
+                            'bias_out': np.concatenate((parent1['bias_out'][:cut_point], parent2['bias_out'][cut_point:]))
+                        }
+                        offspring.append(child)
+                    return offspring
+                def mutate(offspring, mutation_rate=0.1, mutation_strength=0.5):
+                    for individual in offspring:
+                        if random.random() < mutation_rate:  # Only mutate some offspring
+                            individual['weights'] += np.random.normal(0, mutation_strength, individual['weights'].shape)
+                            individual['bias'] += np.random.normal(0, mutation_strength, individual['bias'].shape)
+                            individual['weights_out'] += np.random.normal(0, mutation_strength, individual['weights_out'].shape)
+                            individual['bias_out'] += np.random.normal(0, mutation_strength, individual['bias_out'].shape)
+                    return offspring
+                
+                def evolve_population():
+                    global individuals, scores, generation
+                    average_score = np.mean(scores)
+                    print(f"Generation {generation} - Average Score: {average_score:.2f}")
+                    
+                    # Keep a portion of the best performers (elites)
+                    num_elites = int(population_size * 0.05)
+                    elites_indices = np.argsort(scores)[-num_elites:]
+                    elites = [individuals[i] for i in elites_indices]
+                    
+                    # Select parents for the next generation
+                    num_parents = int(population_size * 0.25)
+                    parents = tournament_selection(scores, num_parents)
+                    
+                    # Determine the number of offspring to produce
+                    num_offspring = population_size - len(elites) - len(parents)
+                    offspring = crossover(parents, num_offspring)
+                    
+                    # Apply mutations to the offspring
+                    offspring = mutate(offspring)
+                    
+                    # Combine elites, parents, and offspring into the new population
+                    individuals = elites + parents + offspring
+                    scores = [0 for _ in range(population_size)]
+                    generation += 1
+                
+                
+                def tournament_selection(scores, num_parents, tournament_size=5):
+                    parents = []
+                    for _ in range(num_parents):
+                        tournament_indices = np.random.randint(len(scores), size=tournament_size)
+                        tournament_winner_idx = tournament_indices[np.argmax(np.take(scores, tournament_indices))]
+                        parents.append(individuals[tournament_winner_idx])
+                    return parents
+                
+                def reset_game():
+                    global snake_pos, snake_body, food_pos, food_spawn, direction, score, moves_since_last_meal
+                    snake_pos = [100, 50]
+                    snake_body = [[100, 50], [90, 50], [80, 50]]
+                    food_pos = [random.randrange(1, (width // 10)) * 10, random.randrange(1, (height // 10)) * 10]
+                    food_spawn = True
+                    score = 0
+                    moves_since_last_meal = 0
+                
+                def game_loop():
+                    global snake_pos, snake_body, food_pos, food_spawn, score, moves_since_last_meal, current_individual, scores
+                
+                    while True:
+                        for event in pygame.event.get():
+                            if event.type == pygame.QUIT:
+                                pygame.quit()
+                                sys.exit()
+                
+                        action = predict_action(snake_pos, food_pos, snake_body, individuals[current_individual])
+                        directions = ['UP', 'RIGHT', 'DOWN', 'LEFT']
+                        direction = directions[action]
+                
+                        # Move the snake
+                        if direction == 'UP':
+                            snake_pos[1] -= 10
+                        elif direction == 'DOWN':
+                            snake_pos[1] += 10
+                        elif direction == 'LEFT':
+                            snake_pos[0] -= 10
+                        elif direction == 'RIGHT':
+                            snake_pos[0] += 10
+                
+                        # Check for collisions with walls
+                        if snake_pos[0] >= width or snake_pos[0] < 0 or snake_pos[1] >= height or snake_pos[1] < 0:
+                            scores[current_individual] = score
+                            current_individual += 1
+                            if current_individual >= population_size:
+                                evolve_population()
+                                current_individual = 0
+                            reset_game()
+                            continue
+                
+                        # Check for collisions with self
+                        if snake_pos in snake_body[1:]:
+                            scores[current_individual] = score
+                            current_individual += 1
+                            if current_individual >= population_size:
+                                evolve_population()
+                                current_individual = 0
+                            reset_game()
+                            continue
+                
+                        # Move snake
+                        snake_body.insert(0, list(snake_pos))
+                        if snake_pos == food_pos:
+                            score += 1
+                            food_spawn = False
+                        else:
+                            snake_body.pop()
+                
+                        # Spawn new food
+                        if not food_spawn:
+                            food_pos = [random.randrange(1, (width // 10)) * 10, random.randrange(1, (height // 10)) * 10]
+                            food_spawn = True
+                
+                        window.fill(BLACK)
+                        for pos in snake_body:
+                            pygame.draw.rect(window, GREEN, pygame.Rect(pos[0], pos[1], 10, 10))
+                        pygame.draw.rect(window, RED, pygame.Rect(food_pos[0], food_pos[1], 10, 10))
+                        pygame.display.update()
+                        fps_clock.tick(speed)
+                
+                game_loop()
+
             `);
         }
 
