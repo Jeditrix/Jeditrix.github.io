@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Game</title>
+    <style>
+        body {
+            background-color: #888; /* Grey background */
+        }
+        canvas {
+            background-color: black; /* Black background for the game canvas */
+            display: block;
+            margin: 0 auto;
+        }
+        .leaderboard {
+            color: white; /* White color for high score text */
+        }
+        .game-info {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-info">A* Algorithm</div>
+    <canvas id="gameCanvas1" width="800" height="800"></canvas>
+    <div id="score">Score: 0</div>
+    <ol id="topScores1" class="leaderboard"></ol>
+
+    <div class="game-info">Field D* Algorithm</div>
+    <canvas id="gameCanvas2" width="800" height="800"></canvas>
+    <div id="score2">Score: 0</div>
+    <ol id="topScores2" class="leaderboard"></ol>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const canvas = document.getElementById('gameCanvas1');
+            const ctx = canvas.getContext('2d');
+            const cellSize = 20; // Size of each cell (snake part and food)
+            const width = canvas.width;
+            const height = canvas.height;
+
+            let snake = [{ x: 20, y: 20 }];
+            let food = generateFoodPosition();
+            let direction = 'RIGHT';
+            let score = 0;
+
+            function draw() {
+                // Clear canvas
+                ctx.clearRect(0, 0, width, height);
+
+                // Draw snake
+                ctx.fillStyle = 'lime';
+                snake.forEach(part => {
+                    ctx.fillRect(part.x, part.y, cellSize, cellSize);
+                });
+
+                // Draw food
+                ctx.fillStyle = 'red';
+                ctx.fillRect(food.x, food.y, cellSize, cellSize);
+            }
+
+            function generateFoodPosition() {
+                let newFood;
+                do {
+                    newFood = {
+                        x: Math.floor(Math.random() * (width / cellSize)) * cellSize,
+                        y: Math.floor(Math.random() * (height / cellSize)) * cellSize
+                    };
+                } while (snake.some(part => part.x === newFood.x && part.y === newFood.y));
+                return newFood;
+            }
+
+            function updateScore() {
+                score += 10;
+                document.getElementById('score').innerText = 'Score: ' + score;
+            }
+
+            function moveSnake() {
+                const path = findShortestPath();
+                if (!path) {
+                    // No valid path found, game over
+                    endGame();
+                    return false;
+                }
+
+                // Move snake towards the next point in the path
+                const nextPoint = path[1]; // The first point is the current position
+                if (nextPoint.x < snake[0].x && direction !== 'RIGHT') {
+                    direction = 'LEFT';
+                } else if (nextPoint.x > snake[0].x && direction !== 'LEFT') {
+                    direction = 'RIGHT';
+                } else if (nextPoint.y < snake[0].y && direction !== 'DOWN') {
+                    direction = 'UP';
+                } else if (nextPoint.y > snake[0].y && direction !== 'UP') {
+                    direction = 'DOWN';
+                }
+
+                // Move snake based on direction
+                const head = { x: snake[0].x, y: snake[0].y };
+                switch (direction) {
+                    case 'UP':
+                        head.y -= cellSize;
+                        break;
+                    case 'DOWN':
+                        head.y += cellSize;
+                        break;
+                    case 'LEFT':
+                        head.x -= cellSize;
+                        break;
+                    case 'RIGHT':
+                        head.x += cellSize;
+                        break;
+                }
+
+                // Check if the new position is within bounds
+                if (
+                    head.x < 0 || head.x >= width ||
+                    head.y < 0 || head.y >= height ||
+                    snake.some((part, index) => index > 0 && part.x === head.x && part.y === head.y) // Exclude head from collision detection
+                ) {
+                    // Game over
+                    endGame();
+                    return false;
+                }
+
+                // Move snake
+                snake.unshift(head);
+
+                // Check if snake eats food
+                if (head.x === food.x && head.y === food.y) {
+                    // Generate new food
+                    food = generateFoodPosition();
+                    updateScore();
+                } else {
+                    // Remove tail segment
+                    snake.pop();
+                }
+
+                return true;
+            }
+
+            function findShortestPath() {
+                // A* algorithm implementation
+                const start = { x: snake[0].x, y: snake[0].y };
+                const end = { x: food.x, y: food.y };
+                const openSet = [start];
+                const cameFrom = {};
+                const gScore = { [start.x + ',' + start.y]: 0 };
+                const fScore = { [start.x + ',' + start.y]: heuristic(start, end) };
+
+                while (openSet.length > 0) {
+                    // Get the node in openSet with the lowest fScore value
+                    const current = openSet.reduce((a, b) => fScore[a.x + ',' + a.y] < fScore[b.x + ',' + b.y] ? a : b);
+
+                    if (current.x === end.x && current.y === end.y) {
+                        return reconstructPath(cameFrom, current);
+                    }
+
+                    openSet.splice(openSet.indexOf(current), 1);
+
+                    const neighbors = [
+                        { x: current.x + cellSize, y: current.y },
+                        { x: current.x - cellSize, y: current.y },
+                        { x: current.x, y: current.y + cellSize },
+                        { x: current.x, y: current.y - cellSize }
+                    ];
+
+                    neighbors.forEach(neighbor => {
+                        if (
+                            neighbor.x >= 0 && neighbor.x < width &&
+                            neighbor.y >= 0 && neighbor.y < height &&
+                            !snake.some(part => part.x === neighbor.x && part.y === neighbor.y)
+                        ) {
+                            const tentativeGScore = gScore[current.x + ',' + current.y] + 1;
+
+                            if (
+                                tentativeGScore < gScore[neighbor.x + ',' + neighbor.y] ||
+                                !gScore.hasOwnProperty(neighbor.x + ',' + neighbor.y)
+                            ) {
+                                cameFrom[neighbor.x + ',' + neighbor.y] = current;
+                                gScore[neighbor.x + ',' + neighbor.y] = tentativeGScore;
+                                fScore[neighbor.x + ',' + neighbor.y] = tentativeGScore + heuristic(neighbor, end);
+
+                                if (!openSet.some(node => node.x === neighbor.x && node.y === neighbor.y)) {
+                                    openSet.push(neighbor);
+                                }
+                            }
+                        }
+                    });
+                }
+
+                return null; // No path found
+            }
+
+            function heuristic(a, b) {
+                // Manhattan distance heuristic
+                return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+            }
+
+            function reconstructPath(cameFrom, current) {
+                const totalPath = [current];
+                while (cameFrom.hasOwnProperty(current.x + ',' + current.y)) {
+                    current = cameFrom[current.x + ',' + current.y];
+                    totalPath.unshift(current);
+                }
+                return totalPath;
+            }
+
+            function gameLoop() {
+                if (moveSnake()) {
+                    draw();
+                    setTimeout(gameLoop, 0); // Update every 100 milliseconds
+                }
+            }
+
+            function endGame() {
+                saveScore(score);
+                displayLeaderboard();
+                resetGame();
+                gameLoop();
+            }
+
+            function resetGame() {
+                // Reset snake position and direction
+                snake = [{ x: 20, y: 20 }];
+                direction = 'RIGHT';
+                score = 0;
+                updateScore();
+
+                // Generate new food position
+                food = generateFoodPosition();
+            }
+
+            function saveScore(score) {
+                const highScores = JSON.parse(localStorage.getItem('highScores1')) || [];
+                highScores.push(score);
+                highScores.sort((a, b) => b - a);
+                localStorage.setItem('highScores1', JSON.stringify(highScores.slice(0, 3))); // Keep only the top 3 scores
+            }
+
+            function displayLeaderboard() {
+                const topScores1Element = document.getElementById('topScores1');
+                const highScores1 = JSON.parse(localStorage.getItem('highScores1')) || [];
+                topScores1Element.innerHTML = ''; // Clear previous scores
+                highScores1.forEach((score, index) => {
+                    const li = document.createElement('li');
+                    li.textContent = `Score ${index + 1}: ${score}`;
+                    topScores1Element.appendChild(li);
+                });
+            }
+
+            function initializeLeaderboard() {
+                const topScores1Element = document.getElementById('topScores1');
+                const highScores1 = JSON.parse(localStorage.getItem('highScores1')) || [];
+                displayLeaderboard(highScores1, topScores1Element);
+            }
+
+            function resetLeaderboard() {
+                localStorage.setItem('highScores1', JSON.stringify([]));
+                initializeLeaderboard();
+            }
+
+            initializeLeaderboard();
+            resetLeaderboard();
+
+            // Initial game setup
+            draw();
+            gameLoop();
+        });
+    </script>
+
+    
+ 
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+    const canvas = document.getElementById('gameCanvas2');
+    const ctx = canvas.getContext('2d');
+    const cellSize = 20; // Size of each cell (snake part and food)
+    const width = canvas.width;
+    const height = canvas.height;
+
+    let snake = [{ x: 20, y: 20 }];
+    let food = generateFoodPosition();
+    let direction = 'RIGHT';
+    let score = 0;
+
+    function draw() {
+        // Clear canvas
+        ctx.clearRect(0, 0, width, height);
+
+        // Draw snake
+        ctx.fillStyle = 'lime';
+        snake.forEach(part => {
+            ctx.fillRect(part.x, part.y, cellSize, cellSize);
+        });
+
+        // Draw food
+        ctx.fillStyle = 'red';
+        ctx.fillRect(food.x, food.y, cellSize, cellSize);
+    }
+
+    function generateFoodPosition() {
+        let newFood;
+        do {
+            newFood = {
+                x: Math.floor(Math.random() * (width / cellSize)) * cellSize,
+                y: Math.floor(Math.random() * (height / cellSize)) * cellSize
+            };
+        } while (snake.some(part => part.x === newFood.x && part.y === newFood.y));
+        return newFood;
+    }
+
+    function updateScore() {
+        score += 10;
+        document.getElementById('score2').innerText = 'Score: ' + score;
+    }
+
+    function moveSnake() {
+        const path = findShortestPath();
+        if (!path) {
+            // No valid path found, game over
+            endGame();
+            return false;
+        }
+
+        // Move snake towards the next point in the path
+        const nextPoint = path[1]; // The first point is the current position
+        if (nextPoint.x < snake[0].x && direction !== 'RIGHT') {
+            direction = 'LEFT';
+        } else if (nextPoint.x > snake[0].x && direction !== 'LEFT') {
+            direction = 'RIGHT';
+        } else if (nextPoint.y < snake[0].y && direction !== 'DOWN') {
+            direction = 'UP';
+        } else if (nextPoint.y > snake[0].y && direction !== 'UP') {
+            direction = 'DOWN';
+        }
+
+        // Move snake based on direction
+        const head = { x: snake[0].x, y: snake[0].y };
+        switch (direction) {
+            case 'UP':
+                head.y -= cellSize;
+                break;
+            case 'DOWN':
+                head.y += cellSize;
+                break;
+            case 'LEFT':
+                head.x -= cellSize;
+                break;
+            case 'RIGHT':
+                head.x += cellSize;
+                break;
+        }
+
+        // Check if the new position is within bounds
+        if (
+            head.x < 0 || head.x >= width ||
+            head.y < 0 || head.y >= height ||
+            snake.some((part, index) => index > 0 && part.x === head.x && part.y === head.y) // Exclude head from collision detection
+        ) {
+            // Game over
+            endGame();
+            return false;
+        }
+
+        // Move snake
+        snake.unshift(head);
+
+        // Check if snake eats food
+        if (head.x === food.x && head.y === food.y) {
+            // Generate new food
+            food = generateFoodPosition();
+            updateScore();
+        } else {
+            // Remove tail segment
+            snake.pop();
+        }
+
+        return true;
+    }
+
+    // Define node and edge costs
+const COST_BLOCKED = Infinity; // Cost for blocked cells
+const COST_FREE = 1; // Cost for free cells
+const COST_DIAGONAL = Math.sqrt(2); // Cost for diagonal movement
+
+function findShortestPath() {
+// Field D* algorithm implementation
+// Initialize data structures
+let openSet = [{ x: snake[0].x, y: snake[0].y }]; // Initialize open set with snake head
+let cameFrom = {}; // Map to store the parent of each cell
+let gScore = {}; // Map to store the cost of reaching each cell from the start
+let rhs = {}; // Map to store the right-hand-side values for each cell
+let fScore = {}; // Map to store the estimated total cost for each cell
+
+// Initialize gScore, rhs, and fScore for each cell
+for (let x = 0; x < width; x += cellSize) {
+for (let y = 0; y < height; y += cellSize) {
+    gScore[x + ',' + y] = Infinity;
+    rhs[x + ',' + y] = Infinity;
+    fScore[x + ',' + y] = Infinity;
+}
+}
+
+// Set gScore and rhs for the start cell
+const start = { x: snake[0].x, y: snake[0].y };
+const end = { x: food.x, y: food.y };
+gScore[start.x + ',' + start.y] = 0;
+rhs[start.x + ',' + start.y] = heuristic(start, end);
+fScore[start.x + ',' + start.y] = rhs[start.x + ',' + start.y];
+
+// Main loop
+while (openSet.length > 0) {
+// Get the cell with the lowest fScore value
+let current = openSet.reduce((a, b) => fScore[a.x + ',' + a.y] < fScore[b.x + ',' + b.y] ? a : b);
+
+// Check if we've reached the goal
+if (current.x === end.x && current.y === end.y) {
+    return reconstructPath(cameFrom, current);
+}
+
+// Remove current from openSet
+openSet = openSet.filter(cell => cell.x !== current.x || cell.y !== current.y);
+
+// Expand current cell's neighbors
+const neighbors = getNeighbors(current);
+neighbors.forEach(neighbor => {
+    let tentativeGScore = gScore[current.x + ',' + current.y] + getCost(current, neighbor);
+
+    if (tentativeGScore < gScore[neighbor.x + ',' + neighbor.y]) {
+        cameFrom[neighbor.x + ',' + neighbor.y] = current;
+        gScore[neighbor.x + ',' + neighbor.y] = tentativeGScore;
+        fScore[neighbor.x + ',' + neighbor.y] = gScore[neighbor.x + ',' + neighbor.y] +
+            heuristic(neighbor, end);
+
+        // Add neighbor to openSet if not already present
+        if (!openSet.some(cell => cell.x === neighbor.x && cell.y === neighbor.y)) {
+            openSet.push(neighbor);
+        }
+    }
+});
+}
+
+// No path found
+return null;
+}
+
+
+    function getNeighbors(cell) {
+        // Returns the list of neighboring cells
+        const neighbors = [];
+        const directions = [
+            { x: 1, y: 0 },
+            { x: -1, y: 0 },
+            { x: 0, y: 1 },
+            { x: 0, y: -1 }
+        ];
+
+        directions.forEach(dir => {
+            const neighbor = { x: cell.x + dir.x * cellSize, y: cell.y + dir.y * cellSize };
+            if (isValidCell(neighbor)) {
+                neighbors.push(neighbor);
+            }
+        });
+
+        return neighbors;
+    }
+
+    function isValidCell(cell) {
+        // Returns true if the cell is within the canvas bounds and not part of the snake
+        return (
+            cell.x >= 0 && cell.x < width &&
+            cell.y >= 0 && cell.y < height &&
+            !snake.some(part => part.x === cell.x && part.y === cell.y)
+        );
+    }
+
+    function getCost(cell1, cell2) {
+        // Returns the cost of moving from cell1 to cell2
+        if (Math.abs(cell1.x - cell2.x) === cellSize && Math.abs(cell1.y - cell2.y) === cellSize) {
+            // Diagonal movement
+            return COST_DIAGONAL;
+        } else {
+            // Horizontal or vertical movement
+            return COST_FREE;
+        }
+    }
+
+    function heuristic(a, b) {
+        // Returns the heuristic distance between two cells
+        return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+    }
+
+    function reconstructPath(cameFrom, current) {
+        // Reconstructs the path from start to end using the cameFrom map
+        const totalPath = [current];
+        while (cameFrom.hasOwnProperty(current.x + ',' + current.y)) {
+            current = cameFrom[current.x + ',' + current.y];
+            totalPath.unshift(current);
+        }
+        return totalPath;
+    }
+
+    function gameLoop() {
+        if (moveSnake()) {
+            draw();
+            setTimeout(gameLoop, 1); // Update every 100 milliseconds
+        }
+    }
+
+    function endGame() {
+        saveScore(score);
+        displayLeaderboard();
+        resetGame();
+    }
+
+    function resetGame() {
+        // Reset snake position and direction
+        snake = [{ x: 20, y: 20 }];
+        direction = 'RIGHT';
+        score = 0;
+        updateScore();
+
+        // Generate new food position
+        food = generateFoodPosition();
+
+        // Continue game loop
+        gameLoop();
+    }
+
+    function saveScore(score) {
+        const highScores = JSON.parse(localStorage.getItem('highScores2')) || [];
+        highScores.push(score);
+        highScores.sort((a, b) => b - a);
+        localStorage.setItem('highScores2', JSON.stringify(highScores.slice(0, 3))); // Keep only the top 3 scores
+    }
+
+    function displayLeaderboard() {
+        const topScores2Element = document.getElementById('topScores2');
+        const highScores2 = JSON.parse(localStorage.getItem('highScores2')) || [];
+        topScores2Element.innerHTML = ''; // Clear previous scores
+        highScores2.forEach((score, index) => {
+            const li = document.createElement('li');
+            li.textContent = `Score ${index + 1}: ${score}`;
+            topScores2Element.appendChild(li);
+        });
+    }
+
+    function initializeLeaderboard() {
+        const topScores2Element = document.getElementById('topScores2');
+        const highScores2 = JSON.parse(localStorage.getItem('highScores2')) || [];
+        displayLeaderboard(highScores2, topScores2Element);
+    }
+
+    function resetLeaderboard() {
+        localStorage.setItem('highScores2', JSON.stringify([]));
+        initializeLeaderboard();
+    }
+
+    initializeLeaderboard();
+    resetLeaderboard();
+
+    // Initial game setup
+    draw();
+    gameLoop();
+});
+    </script>
+
+</body>
+</html>
