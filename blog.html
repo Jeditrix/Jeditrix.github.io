@@ -1,103 +1,204 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-    <link rel="icon" href="assets/read.gif" type="image/gif" >
+    <link rel="icon" href="assets/read.gif" type="image/gif">
     <title>Alex's Blog</title>
     <style>
         body {
-            font-family: 'Comic Sans MS', sans-serif; /* The iconic 90s font */
-            background-color: #FFDDFF; /* Pastel pink background */
-            color: #FFDDFF; /* Blue text */
-            background-image: url('path_to_bubble_background.gif'); /* Bubbly background */
+            font-family: 'Comic Sans MS', sans-serif;
+            background: linear-gradient(135deg, #FFDDFF 0%, #FFE6FF 100%);
             margin: 0;
             padding: 20px;
             text-align: center;
+            min-height: 100vh;
         }
 
         h1 {
-            color: #FF00FF; /* Bright Pink */
-            text-shadow: 3px 3px #FFFF00; /* Yellow shadow for pop effect */
+            color: #FF00FF;
+            text-shadow: 2px 2px #FFFF00;
             font-size: 2.5rem;
+            margin-bottom: 40px;
         }
 
         .blog-post {
-            background-color: rgba(255, 255, 0, 0.5); /* Semi-transparent yellow */
-            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.85);
+            padding: 30px;
             margin: 20px auto;
-            max-width: 700px;
-            border: 3px dotted #00FF00; /* Dotted neon green border */
+            max-width: 800px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(255, 0, 255, 0.2);
             position: relative;
         }
 
         h2 {
-            font-size: 1.5rem;
-            color: #FF4500; /* Bright Orange */
-            text-decoration: blink; /* Let's bring back the blink! */
-        }
-
-        p {
-            font-size: 1rem;
-            text-align: justify;
+            font-size: 1.8rem;
+            color: #FF1493;
+            margin-bottom: 20px;
         }
 
         .date {
             font-size: 0.9rem;
-            color: #00FFFF; /* Cyan */
+            color: #FF69B4;
+            margin-bottom: 25px;
         }
 
-        .divider {
-            margin: 20px 0;
-            height: 2px;
-            background-color: #FF4500; /* Bright Orange divider */
+        .reading-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 0;
+            margin: 30px 0;
         }
 
-        img.cons {
-            width: 100%;  /* Stretch to fit the width of the .blog-post */
-            height: auto;  /* Maintain aspect ratio */
-            display: block;  /* Remove default spacing below the image */
+        .book-card {
+            background: rgba(255, 192, 203, 0.3);
+            border: 2px solid #FF69B4;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: left;
+            transition: transform 0.3s ease;
+        }
+
+        .book-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .book-title {
+            color: #FF1493;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: block;
+            text-decoration: none;
+        }
+
+        .book-title:hover {
+            color: #FF69B4;
+            text-decoration: underline;
+        }
+
+        .book-description {
+            color: #FF4500;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .nav-icons {
+            position: fixed;
+            top: 20px;
+            width: 100%;
+            left: 0;
+            z-index: 100;
         }
 
         .back {
             position: absolute;
-            top: 10%;
-            left: 87%;
-            transform: translate(-50%, -50%); /* Centers the gif */
-        }  
+            right: 50px;
+        }
+
         .heart {
             position: absolute;
-            top: 10%;
-            left: 13%;
-            transform: translate(-50%, -50%); /* Centers the gif */
-        }      
+            left: 50px;
+        }
 
+        .intro-text {
+            color: #FF4500;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 30px;
+            opacity: 0.8;
+            animation: sparkle 2s infinite;
+        }
+
+        @keyframes sparkle {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
+
+        img.cons {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            margin: 20px auto;
+            display: block;
+        }
+
+        .footer-note {
+            color: #FF4500;
+            font-style: italic;
+            margin-top: 30px;
+        }
     </style>
 </head>
-
 <body>
-    
-    <main>
-
+    <div class="nav-icons">
         <a href="https://jeditrix.github.io/index">   
             <img src="assets/homebb.gif" alt="Home" class="back" />
-            </a>  
+        </a>  
+        <img src="assets/heart.gif" alt="Heart" class="heart">
+    </div>
 
-            <img src="assets/heart.gif" alt="Heart" class="heart">
-
-        </main>>
-
-
-    <h1> Alex's Blog! </h1>
+    <h1>✨ Alex's Blog! ✨</h1>
 
     <div class="blog-post">
         <img src="assets/cons.gif" alt="Under Construction" class="cons">
-        <!-- You can add your blog content below the image -->
+        
+        <h2>📚 Books you should read 📚</h2>
+        <div class="date">Updated: December 11, 2024</div>
+        
+        <div class="intro-text">
+           Philosophy
+        </div>
+
+        <div class="reading-list">
+            <div class="book-card">
+                <a href="http://files.libertyfund.org/files/1442/0330_Bk.pdf" class="book-title">
+                    ✨ Critique of Pure Reason - Kant
+                </a>
+                <div class="book-description">
+                    Must Read
+                </div>
+            </div>
+
+            <div class="book-card">
+                <a href="https://ia801900.us.archive.org/7/items/in.ernet.dli.2015.187384/2015.187384.Works-Of-Love.pdf" class="book-title">
+                    ✨ Works of Love - Kierkeggard 
+                </a>
+                <div class="book-description">
+                    Most transformative book I've read
+                </div>
+            </div>
+
+            <div class="book-card">
+                <a href="https://www.wittgensteinproject.org/w/index.php/Blue_Book" class="book-title">
+                    ✨ Blue and Brown Books - Wittgenstein
+                </a>
+                <div class="book-description">
+                    Central to the "Philosophy of the mind" (Link directs to the Blue book. Change the directory in the url from Blue_book to Brown_book to view the other ;) )
+                </div>
+            </div>
+
+            <div class="book-card">
+                <a href="https://files.libcom.org/files/Anti-Oedipus.pdf" class="book-title">
+                    ✨ Anti-Oedipus: Capitalism and Schizophrenia
+                </a>
+                <div class="book-description">
+                    Puts Freud In his place - Fantastic work on psychoanalysis 
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-note">
+            
+        </div>
     </div>
-
-    <!-- More blog posts can be added here -->
-
-
 </body>
-
 </html>
 
