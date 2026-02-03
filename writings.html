@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="icon" href="assets/read.gif" type="image/gif">
+    <title>Alex's Writings</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', sans-serif;
+            background: linear-gradient(135deg, #FFDDFF 0%, #FFE6FF 100%);
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            color: #FF00FF;
+            text-shadow: 2px 2px #FFFF00;
+            font-size: 2.5rem;
+            margin-bottom: 40px;
+        }
+
+        .writings-container {
+            background-color: rgba(255, 255, 255, 0.85);
+            padding: 30px;
+            margin: 20px auto;
+            max-width: 800px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(255, 0, 255, 0.2);
+            position: relative;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            color: #FF1493;
+            margin-bottom: 20px;
+        }
+
+        .date {
+            font-size: 0.9rem;
+            color: #FF69B4;
+            margin-bottom: 25px;
+        }
+
+        .writings-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding: 0;
+            margin: 30px 0;
+        }
+
+        .writing-card {
+            background: rgba(255, 192, 203, 0.3);
+            border: 2px solid #FF69B4;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: left;
+            transition: transform 0.3s ease;
+        }
+
+        .writing-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .writing-title {
+            color: #FF1493;
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: block;
+            text-decoration: none;
+        }
+
+        .writing-title:hover {
+            color: #FF69B4;
+            text-decoration: underline;
+        }
+
+        .writing-date {
+            color: #FF69B4;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+        }
+
+        .writing-preview {
+            color: #FF4500;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .nav-icons {
+            position: fixed;
+            top: 20px;
+            width: 100%;
+            left: 0;
+            z-index: 100;
+        }
+
+        .back {
+            position: absolute;
+            right: 50px;
+        }
+
+        .heart {
+            position: absolute;
+            left: 50px;
+        }
+
+        .intro-text {
+            color: #FF4500;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        img.cons {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            margin: 20px auto;
+            display: block;
+        }
+
+        .footer-note {
+            color: #FF4500;
+            font-style: italic;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-icons">
+        <a href="https://jeditrix.github.io/index">   
+            <img src="assets/homebb.gif" alt="Home" class="back" />
+        </a>  
+        <img src="assets/heart.gif" alt="Heart" class="heart">
+    </div>
+
+    <h1>✨ Alex's Writings ✨</h1>
+
+    <div class="writings-container">
+        <img src="assets/cons.gif" alt="Under Construction" class="cons">
+        
+        <h2>📝 Thoughts & Essays 📝</h2>
+        <div class="date">Updated: February 2025</div>
+        
+        <div class="intro-text">
+            A space for ideas — on philosophy, compression, communication, and everything in between.
+        </div>
+
+        <div class="writings-list">
+            <!-- TEMPLATE: Copy this card for new writings -->
+            <div class="writing-card">
+                <a href="#" class="writing-title">
+                    ✨ On Semantic Compression
+                </a>
+                <div class="writing-date">February 2025</div>
+                <div class="writing-preview">
+                    The idea manifests in the mind and must be conveyed through a semantic bridge — a delicate balance of compression without loss, clarity without verbosity. Like trying to find a universal algorithm that both parties can access...
+                </div>
+            </div>
+
+            <!-- Add more writing cards here -->
+            <!--
+            <div class="writing-card">
+                <a href="writings/your-essay.html" class="writing-title">
+                    ✨ Title Here
+                </a>
+                <div class="writing-date">Date</div>
+                <div class="writing-preview">
+                    Preview text here...
+                </div>
+            </div>
+            -->
+
+        </div>
+
+        <div class="footer-note">
+            More coming soon...
+        </div>
+    </div>
+</body>
+</html>
